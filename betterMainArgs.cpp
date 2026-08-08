@@ -4,8 +4,11 @@
 #include <algorithm>
 #include <iomanip>
 #include <map>
+#include <sstream>
 
-void ArgumentCalculator::printUsage(std::vector<Argument> config) {
+std::string ArgumentCalculator::printUsage(std::vector<Argument> config) {
+    std:: ostringstream os;
+
     size_t flagWidth = 0;
     size_t helpMessageWidth = 0;
 
@@ -17,15 +20,17 @@ void ArgumentCalculator::printUsage(std::vector<Argument> config) {
     flagWidth += 4;
     helpMessageWidth += 4;
 
-    std::cout << "Arguments: " << std::endl;
+    os << "Arguments: " << std::endl;
     for (const auto arg : config) {
-        std::cout << "\t" << std::left << std::setw(flagWidth) << arg.getFlags() << std::setw(helpMessageWidth) << arg.helpMessage;
+        os << "\t" << std::left << std::setw(flagWidth) << arg.getFlags() << std::setw(helpMessageWidth) << arg.helpMessage;
         if (arg.mandatory) {
-            std::cout << "[Mandatory]";
+            os << "[Mandatory]";
         }
 
-        std::cout << std::endl;
+        os << std::endl;
     }
+
+    return os.str();
 }
 
 std::vector<Argument> ArgumentCalculator::getUsedArguments(std::vector<Argument> config) {
@@ -50,11 +55,12 @@ std::vector<Argument> ArgumentCalculator::getUsedArguments(std::vector<Argument>
         try {
             Argument used = possibleArguments.at(arg);
 
-            if (used.mandatory) usedMandatoryCount++;
             
             if (i+1 < _argc && !std::string(_argv[i+1]).starts_with("-")) {
                 used.argument = std::string(_argv[++i]);
             }
+            
+            if (used.mandatory && !used.argument.empty()) usedMandatoryCount++;
 
             usedArguments.push_back(used);
         } catch (std::out_of_range) {
@@ -66,15 +72,14 @@ std::vector<Argument> ArgumentCalculator::getUsedArguments(std::vector<Argument>
 
     if (usedMandatoryCount != mandatoryCount) {
         std::vector<Argument> unusedArgs;
-        
+
         for (auto arg: config) {
             if (arg.mandatory && std::find(usedArguments.begin(), usedArguments.end(), arg) == usedArguments.end()) {
                 unusedArgs.push_back(arg);
             }
         }
 
-        std::cerr << "Unused Arguments:" << std::endl;
-        printUsage(unusedArgs);
+        throw std::runtime_error("Unused " + printUsage(unusedArgs));
     }
 
     return usedArguments;

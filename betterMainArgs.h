@@ -23,7 +23,7 @@ public:
     ArgumentCalculator(int argc, char *argv[]): _argv(argv), _argc(argc) {}
     std::vector<Argument> getUsedArguments(std::vector<Argument>);
 
-    void printUsage(std::vector<Argument>);
+    std::string printUsage(std::vector<Argument>);
 private:
     int _argc;
     char** _argv;
