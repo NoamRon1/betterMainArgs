@@ -3,7 +3,7 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
-    std::vector<Argument> config = { // vector
+    std::vector<BetterMainArguments::Argument> config = { // vector
         { // Argument
             {"h", "help"}, // pair of strings
             "prints this message",
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
         }
     };
     
-    ArgumentCalculator ac(argc, argv);
+    BetterMainArguments::ArgumentProcessor ac(argc, argv);
 
     auto used = ac.getUsedArguments(config);
 
