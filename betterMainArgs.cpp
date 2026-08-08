@@ -59,7 +59,7 @@ std::vector<Argument> ArgumentCalculator::getUsedArguments(std::vector<Argument>
             if (i+1 < _argc && !std::string(_argv[i+1]).starts_with("-")) {
                 used.argument = std::string(_argv[++i]);
             }
-            
+
             if (used.mandatory && !used.argument.empty()) usedMandatoryCount++;
 
             usedArguments.push_back(used);
@@ -73,8 +73,13 @@ std::vector<Argument> ArgumentCalculator::getUsedArguments(std::vector<Argument>
     if (usedMandatoryCount != mandatoryCount) {
         std::vector<Argument> unusedArgs;
 
+        std::vector<Argument>::iterator argIt;
+
         for (auto arg: config) {
-            if (arg.mandatory && std::find(usedArguments.begin(), usedArguments.end(), arg) == usedArguments.end()) {
+            if (!arg.mandatory) continue;
+
+            argIt = std::find(usedArguments.begin(), usedArguments.end(), arg);
+            if (argIt == usedArguments.end() || argIt->argument.empty()) {
                 unusedArgs.push_back(arg);
             }
         }
