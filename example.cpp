@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
             false
         },
         {
-            {"v", "version"},
+            {"v", ""},
             "prints the version",
             false
         },
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
             true
         },
         {
-            {"i", "input"},
+            {"", "input"},
             "sets the input filename",
             true
         }
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     auto used = ac.getUsedArguments(config);
 
     for (auto arg : used) {
-        std::cout << arg.argumentNames.second << ": " << arg.argument << std::endl;
+        std::cout << arg.getFlags() << ": " << arg.argument << std::endl;
     }
     
     return 0;

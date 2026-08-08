@@ -7,9 +7,12 @@ struct Argument {
     std::pair<std::string, std::string> argumentNames;
     std::string helpMessage; // for usage print
     bool mandatory = false;
-    std::string argument = ""; // for returns;
+    std::string argument = ""; // for returns
 
     std::string getFlags() const {
+        if (argumentNames.second.empty()) return "-" + argumentNames.first;
+        if (argumentNames.first.empty()) return "--" + argumentNames.second;
+
         return "-" + argumentNames.first + ", --" + argumentNames.second;
     }
 
