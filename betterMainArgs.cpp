@@ -7,7 +7,7 @@
 #include <sstream>
 
 namespace BetterMainArguments {
-    std::string ArgumentProcessor::printUsage(std::vector<Argument> config) {
+    std::string ArgumentProcessor::printUsage(const std::vector<Argument>& config) {
         std:: ostringstream os;
 
         size_t flagWidth = 0;
@@ -22,7 +22,7 @@ namespace BetterMainArguments {
         helpMessageWidth += 4;
 
         os << "Arguments: " << std::endl;
-        for (const auto arg : config) {
+        for (const auto& arg : config) {
             os << "\t" << std::left << std::setw(flagWidth) << arg.getFlags() << std::setw(helpMessageWidth) << arg.helpMessage;
             if (arg.mandatory) {
                 os << "[Mandatory]";
@@ -34,12 +34,12 @@ namespace BetterMainArguments {
         return os.str();
     }
 
-    std::vector<Argument> ArgumentProcessor::getUsedArguments(std::vector<Argument> config) {
+    ArgumentProcessor::ProcessedArgument ArgumentProcessor::getUsedArguments(const ArgumentProcessor::ArgumentList& config) const {
         // converts the vector to a hashmap for faster lookup
         std::map<std::string, Argument> possibleArguments;
         int mandatoryCount = 0;
 
-        for (auto arg : config) {
+        for (const auto& arg : config) {
             if (arg.mandatory) mandatoryCount++;
 
             possibleArguments.insert({"-" + arg.argumentNames.first, arg});
@@ -47,11 +47,15 @@ namespace BetterMainArguments {
         }
 
         std::vector<Argument> usedArguments;
+        std::vector<std::string> unrecognizedArguments;
         int usedMandatoryCount = 0;
 
         for (int i = 1; i < _argc; i++) {
             std::string arg = _argv[i];
-            if (arg[0] != '-') continue;
+            if (arg[0] != '-') {
+                unrecognizedArguments.push_back(arg);
+                continue;
+            }
             
             try {
                 Argument used = possibleArguments.at(arg);
@@ -63,7 +67,7 @@ namespace BetterMainArguments {
                 if (used.mandatory && !used.argument.empty()) usedMandatoryCount++;
 
                 usedArguments.push_back(used);
-            } catch (std::out_of_range) {
+            } catch (const std::out_of_range&) {
                 throw std::runtime_error("Argument " + arg + " does not exists!\n");
             } catch (const std::exception& e) {
                 std::cerr << e.what() << std::endl;
@@ -75,7 +79,7 @@ namespace BetterMainArguments {
 
             std::vector<Argument>::iterator argIt;
 
-            for (auto arg: config) {
+            for (const auto& arg: config) {
                 if (!arg.mandatory) continue;
 
                 argIt = std::find(usedArguments.begin(), usedArguments.end(), arg);
@@ -87,6 +91,9 @@ namespace BetterMainArguments {
             throw std::runtime_error("Unused " + printUsage(unusedArgs));
         }
 
-        return usedArguments;
+        return {
+            .usedArguments = usedArguments,
+            .unrecognizedArguments = unrecognizedArguments,
+        };
     }
 }

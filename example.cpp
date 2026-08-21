@@ -3,7 +3,7 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
-    std::vector<BetterMainArguments::Argument> config = { // vector
+    BetterMainArguments::ArgumentProcessor::ArgumentList config = { // vector
         { // Argument
             {"h", "help"}, // pair of strings
             "prints this message",
@@ -30,8 +30,14 @@ int main(int argc, char* argv[]) {
 
     auto used = ac.getUsedArguments(config);
 
-    for (auto arg : used) {
+    std::cout << "Recognized Arguments:" << std::endl;
+    for (const auto& arg : used.usedArguments) {
         std::cout << arg.getFlags() << ": " << arg.argument << std::endl;
+    }
+
+    std::cout << "Unrecognized Arguments:" << std::endl;
+    for (const auto& arg : used.unrecognizedArguments) {
+        std::cout << arg << std::endl;
     }
     
     return 0;
