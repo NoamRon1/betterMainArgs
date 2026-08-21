@@ -51,13 +51,12 @@ namespace BetterMainArguments {
 
         for (int i = 1; i < _argc; i++) {
             std::string arg = _argv[i];
-            if (!arg.starts_with("-")) continue;
+            if (arg[0] != '-') continue;
             
             try {
                 Argument used = possibleArguments.at(arg);
 
-                
-                if (i+1 < _argc && !std::string(_argv[i+1]).starts_with("-")) {
+                if (i+1 < _argc && std::string(_argv[i+1])[0] != '-') {
                     used.argument = std::string(_argv[++i]);
                 }
 
